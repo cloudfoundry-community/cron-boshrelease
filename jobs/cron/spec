@@ -32,8 +32,11 @@ properties:
       If script is specified, the contents of that key are written out to disk and executed by cron.
 
       If command and script are specified for the same entry, the contents of script will be executed, and command ignored
+
+      If lock is specified, the cronjob will be wrapped by flock(1) -n ensuring only one instance runs at a time.
     example:
     - command: /var/vcap/packages/mypackage/bin/myhourlyscript
+      lock: /var/vcap/sys/run/cron/myhourly.lock
       script:
         name: touch.sh
         contents: |
