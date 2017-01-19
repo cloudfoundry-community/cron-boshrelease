@@ -24,6 +24,10 @@ chmod 755 ${ENTRY}
 ENTRY="<%= entry["command"].gsub(/([^\\])%/, '\1\%') %>"
 <% end %>
 
+<% if entry.key?("lock") %>
+ENTRY="/usr/bin/flock -n <%= entry['lock'] %> ${ENTRY}"
+<% end %>
+
 CRONTAB="${CRONTAB}\n<%= entry["minute"] %> <%= entry["hour"] %> <%= entry["day"] %> <%= entry["month"] %> <%= entry["wday"] %> <%= entry["user"] %> ${ENTRY}"
 <% end %>
 
