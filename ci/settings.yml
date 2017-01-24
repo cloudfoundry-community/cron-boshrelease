@@ -3,7 +3,7 @@ meta:
   name:    cron
   release: cron
   target:  sw
-  url:     https://ci.vsphere.starkandwayne.com
+  url:     https://ci.starkandwayne.com
 
   initial_version: 0.1.0
 
