@@ -34,6 +34,8 @@ properties:
       If command and script are specified for the same entry, the contents of script will be executed, and command ignored
 
       If lock is specified, the cronjob will be wrapped by flock(1) -n ensuring only one instance runs at a time.
+
+      If a hash of variables is specified, the cronjob will run with those environment variables.
     example:
     - command: /var/vcap/packages/mypackage/bin/myhourlyscript
       lock: /var/vcap/sys/run/cron/myhourly.lock

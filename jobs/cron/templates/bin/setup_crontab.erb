@@ -28,7 +28,11 @@ ENTRY="<%= entry["command"].gsub(/([^\\])%/, '\1\%') %>"
 ENTRY="/usr/bin/flock -n <%= entry['lock'] %> ${ENTRY}"
 <% end %>
 
-CRONTAB="${CRONTAB}\n<%= entry["minute"] %> <%= entry["hour"] %> <%= entry["day"] %> <%= entry["month"] %> <%= entry["wday"] %> <%= entry["user"] %> ${ENTRY}"
+<%
+  entry_vars = entry.fetch("variables", {}).map { |k, v| "#{k}=#{v}" }.join(" ")
+%>
+
+CRONTAB="${CRONTAB}\n<%= entry["minute"] %> <%= entry["hour"] %> <%= entry["day"] %> <%= entry["month"] %> <%= entry["wday"] %> <%= entry["user"] %> <%= entry_vars %> ${ENTRY}"
 <% end %>
 
 echo -e "$CRONTAB" > /etc/cron.d/cron-boshrelease-crontab
