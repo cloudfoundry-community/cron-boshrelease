@@ -2,6 +2,8 @@
 
 set -xu
 
+<% if spec.scope == all or spec.bootstrap == true %>
+
 CONFIG_DIR=/var/vcap/jobs/cron/config
 
 mkdir -p ${CONFIG_DIR}
@@ -36,3 +38,5 @@ CRONTAB="${CRONTAB}\n<%= entry["minute"] %> <%= entry["hour"] %> <%= entry["day"
 <% end %>
 
 echo -e "$CRONTAB" > /etc/cron.d/cron-boshrelease-crontab
+
+<% end %>

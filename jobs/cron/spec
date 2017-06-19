@@ -52,3 +52,10 @@ properties:
       month: '*'
       wday: '*'
       user: root
+  cron.scope:
+    description: |
+      Determines how many servers cron will be configured on.
+      all:    configure for all instances (default behavior)
+      single: configure for 1 instance determined by spec.bootstrap
+    default: all
+
