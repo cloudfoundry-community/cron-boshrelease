@@ -2,7 +2,7 @@
 
 set -xu
 
-<% if spec.scope == all or spec.bootstrap == true %>
+<% if p("cron.scope") == "all" or spec.bootstrap == true %>
 
 CONFIG_DIR=/var/vcap/jobs/cron/config
 
