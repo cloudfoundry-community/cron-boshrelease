@@ -13,7 +13,7 @@ jobs:
     templates:
     - name: cron
       release: cron
-    instances: 1
+    instances: 3
     persistent_disk: 0
     resource_pool: small_z1
     networks: (( param "please set cron networks" ))
