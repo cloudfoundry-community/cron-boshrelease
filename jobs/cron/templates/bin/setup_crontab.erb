@@ -3,7 +3,6 @@
 set -xu
 
 <% if p("cron.scope") == "all" or spec.bootstrap == true %>
-
 CONFIG_DIR=/var/vcap/jobs/cron/config
 
 mkdir -p ${CONFIG_DIR}
@@ -36,7 +35,5 @@ ENTRY="/usr/bin/flock -n <%= entry['lock'] %> ${ENTRY}"
 
 CRONTAB="${CRONTAB}\n<%= entry["minute"] %> <%= entry["hour"] %> <%= entry["day"] %> <%= entry["month"] %> <%= entry["wday"] %> <%= entry["user"] %> <%= entry_vars %> ${ENTRY}"
 <% end %>
-
-echo -e "$CRONTAB" > /etc/cron.d/cron-boshrelease-crontab
 
 <% end %>
