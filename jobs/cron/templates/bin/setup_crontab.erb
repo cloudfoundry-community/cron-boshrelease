@@ -2,7 +2,14 @@
 
 set -xu
 
+<<<<<<< HEAD
+<% if p("cron.scope") == "all" or p("spec.bootstrap") == true %>
+
+echo "cron scope is all or this was the bootstrap process"
+=======
 <% if p("cron.scope") == "all" or spec.bootstrap == true %>
+>>>>>>> 6cd15ea7a29d109329d8d7f06745d48d622bcd7b
+
 CONFIG_DIR=/var/vcap/jobs/cron/config
 
 mkdir -p ${CONFIG_DIR}
@@ -36,4 +43,11 @@ ENTRY="/usr/bin/flock -n <%= entry['lock'] %> ${ENTRY}"
 CRONTAB="${CRONTAB}\n<%= entry["minute"] %> <%= entry["hour"] %> <%= entry["day"] %> <%= entry["month"] %> <%= entry["wday"] %> <%= entry["user"] %> <%= entry_vars %> ${ENTRY}"
 <% end %>
 
+echo -e "$CRONTAB" > /etc/cron.d/cron-boshrelease-crontab
+<<<<<<< HEAD
+<% else %>
+echo "cron scope was single and this was not the bootstrap process"
+=======
+
+>>>>>>> 6cd15ea7a29d109329d8d7f06745d48d622bcd7b
 <% end %>

@@ -18,7 +18,7 @@ jobs:
     resource_pool: small_z1
     networks: (( param "please set cron networks" ))
     properties:
-      cron.scope: single
+      scope: "single"
 networks: (( param "please set networks" ))
 
 properties: {}
