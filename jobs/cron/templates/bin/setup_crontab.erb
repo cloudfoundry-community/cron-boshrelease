@@ -2,8 +2,8 @@
 
 set -xu
 
-<% if p("cron.scope") == "all" or p("spec.bootstrap") == true %>
-
+<% if p("cscope") == "all" or spec.bootstrap %>
+echo <%= p("cscope") %>
 echo "cron scope is all or this was the bootstrap process"
 
 CONFIG_DIR=/var/vcap/jobs/cron/config

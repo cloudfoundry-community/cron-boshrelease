@@ -52,7 +52,7 @@ properties:
       month: '*'
       wday: '*'
       user: root
-  cron.scope:
+  cscope:
     description: |
       Determines how many servers cron will be configured on.
       all:    configure for all instances (default behavior)
