@@ -9,7 +9,7 @@ rm -f ${CONFIG_DIR}/*
 
 read -r -d '' CRONTAB <<'EOF'
 <% p("cron.variables", {}).each do |k, v| %>
-<%= k %>=<%= v || '' %>
+<%= k %>=<%= v || "''" %>
 <% end %>
 EOF
 
