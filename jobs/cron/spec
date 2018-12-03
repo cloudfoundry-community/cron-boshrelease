@@ -35,10 +35,13 @@ properties:
 
       If lock is specified, the cronjob will be wrapped by flock(1) -n ensuring only one instance runs at a time.
 
+      If log is specified, the cronjob's stdout and stderr will be redirected to specified path. those scripts are recommend to start with "set -x".
+
       If a hash of variables is specified, the cronjob will run with those environment variables.
     example:
     - command: /var/vcap/packages/mypackage/bin/myhourlyscript
       lock: /var/vcap/sys/run/cron/myhourly.lock
+      log: /var/vcap/sys/log/cron/myhourlyscrip.log
       script:
         name: touch.sh
         contents: |
