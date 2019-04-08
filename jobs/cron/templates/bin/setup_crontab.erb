@@ -28,6 +28,10 @@ ENTRY="<%= entry["command"].gsub(/([^\\])%/, '\1\%') %>"
 ENTRY="/usr/bin/flock -n <%= entry['lock'] %> ${ENTRY}"
 <% end %>
 
+<% if entry.key?("log") %>
+ ENTRY="${ENTRY} >> <%= entry["log"] %> 2>&1"
+<% end %>
+
 <%
   entry_vars = entry.fetch("variables", {}).map { |k, v| "#{k}=#{v}" }.join(" ")
 %>
