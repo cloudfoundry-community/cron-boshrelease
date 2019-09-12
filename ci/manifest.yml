@@ -1,4 +1,4 @@
-name: cron
+name: cron-ci
 
 instance_groups:
 - name: cron
