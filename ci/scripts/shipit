@@ -6,22 +6,51 @@
 # and managing release notes for a BOSH Release pipeline
 #
 # author:  James Hunt <james@niftylogic.com>
-# created: 2016-03-30
 
 set -eu
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [[ -z ${VERSION_FROM} ]]; then
-  echo >&2 "VERSION_FROM environment variable not set, or empty.  Did you misconfigure Concourse?"
-  exit 2
+header() {
+  echo
+  echo "###############################################"
+  echo
+  echo $*
+  echo
+}
+
+######
+######
+######
+header "Checking the Concourse Pipeline Environment"
+envok=0
+checkenv() {
+  local name=$1
+  local val=$2
+
+  if [[ -z "$val" ]]; then
+    echo >&2 "The $name variable must be set."
+    envok=1
+  fi
+}
+checkenv REPO_ROOT      "${REPO_ROOT:-}"
+checkenv RELEASE_ROOT   "${RELEASE_ROOT:-}"
+checkenv REPO_OUT       "${REPO_OUT:-}"
+checkenv BRANCH         "${BRANCH:-}"
+checkenv GITHUB_OWNER   "${GITHUB_OWNER:-}"
+checkenv VERSION_FROM   "${VERSION_FROM:-}"
+checkenv AWS_ACCESS_KEY "${AWS_ACCESS_KEY:-}"
+checkenv AWS_SECRET_KEY "${AWS_SECRET_KEY:-}"
+checkenv GIT_EMAIL      "${GIT_EMAIL:-}"
+checkenv GIT_NAME       "${GIT_NAME:-}"
+if [[ $envok != 0 ]]; then
+  echo >&2 "Is your Concourse Pipeline misconfigured?"
+  exit 1
 fi
-if [[ ! -f ${VERSION_FROM} ]]; then
-  echo >&2 "Version file (${VERSION_FROM}) not found.  Did you misconfigure Concourse?"
-  exit 2
-fi
+
 VERSION=$(cat ${VERSION_FROM})
-if [[ -z ${VERSION} ]]; then
-  echo >&2 "Version file (${VERSION_FROM}) was empty.  Did you misconfigure Concourse?"
-  exit 2
+if [[ -z "${VERSION}" ]]; then
+  echo >&2 "Version file (${VERSION_FROM}) was empty."
+  exit 1
 fi
 
 if [[ ! -f ${REPO_ROOT}/ci/release_notes.md ]]; then
@@ -31,47 +60,81 @@ fi
 
 ###############################################################
 
-cat > ~/.bosh_config << EOF
----
-aliases:
-  target:
-    bosh-lite: ${BOSH_LITE_TARGET}
-auth:
-  ${BOSH_LITE_TARGET}:
-    username: ${BOSH_LITE_USERNAME}
-    password: ${BOSH_LITE_PASSWORD}
-EOF
-cat > ${REPO_ROOT}/config/private.yml << EOF
+cd ${REPO_ROOT}
+RELEASE_NAME=$(bosh int config/final.yml --path /final_name)
+
+######
+######
+######
+header "Configuring blobstore (AWS)"
+cat > config/private.yml <<YAML
 ---
 blobstore:
-  s3:
+  provider: s3
+  options:
     access_key_id: ${AWS_ACCESS_KEY}
     secret_access_key: ${AWS_SECRET_KEY}
-EOF
-bosh target ${BOSH_LITE_TARGET}
-(cd ${REPO_ROOT}
- bosh -n create release --final --with-tarball --version "${VERSION}")
+YAML
+
+######
+######
+######
+header "Creating final release..."
+bosh -n create-release --final --version "${VERSION}"
+bosh -n create-release releases/$RELEASE_NAME/$RELEASE_NAME-$VERSION.yml \
+              --tarball releases/$RELEASE_NAME/$RELEASE_NAME-$VERSION.tgz
+cd -
+
+RELEASE_TGZ=$REPO_ROOT/releases/$RELEASE_NAME/$RELEASE_NAME-$VERSION.tgz
+export SHA1=$(sha1sum $RELEASE_TGZ | head -n1 | awk '{print $1}')
+echo "SHA1=$SHA1"
 
 mkdir -p ${RELEASE_ROOT}/artifacts
 echo "v${VERSION}"                         > ${RELEASE_ROOT}/tag
 echo "${RELEASE_NAME} v${VERSION}"         > ${RELEASE_ROOT}/name
+mv ${REPO_ROOT}/releases/*/*-${VERSION}.tgz  ${RELEASE_ROOT}/artifacts
 mv ${REPO_ROOT}/ci/release_notes.md          ${RELEASE_ROOT}/notes.md
-cp ${REPO_ROOT}/releases/*/*-${VERSION}.tgz  ${RELEASE_ROOT}/artifacts
+cat >> ${RELEASE_ROOT}/notes.md <<EOF
 
+### Deployment
+
+\`\`\`yaml
+releases:
+- name:    $RELEASE_NAME
+  version: $VERSION
+  url:     https://github.com/${GITHUB_OWNER}/${RELEASE_NAME}-boshrelease/releases/download/v${VERSION}/${RELEASE_NAME}-${VERSION}.tgz
+  sha1:    $SHA1
+\`\`\`
+EOF
 cat > ${RELEASE_ROOT}/notification <<EOF
-<!here> New ${RELEASE_NAME} v${VERSION} released!
+New ${RELEASE_NAME} v${VERSION} released!
 EOF
 
 
-# GIT!
+######
+######
+######
+header "Updating git repo with final release..."
 if [[ -z $(git config --global user.email) ]]; then
-  git config --global user.email "ci@starkandwayne.com"
+  git config --global user.email "${GIT_EMAIL}"
 fi
 if [[ -z $(git config --global user.name) ]]; then
-  git config --global user.name "CI Bot"
+  git config --global user.name "${GIT_NAME}"
 fi
 
 (cd ${REPO_ROOT}
+ shopt -s nullglob
+ for MANIFEST_PATH in manifests/*.yml; do
+   len=$(wc -l $MANIFEST_PATH | awk '{print $1}')
+   head=$(head -n `expr $len - 4` $MANIFEST_PATH)
+   cat > $MANIFEST_PATH <<EOF
+${head}
+- name:    $RELEASE_NAME
+  version: $VERSION
+  url:     https://github.com/${GITHUB_OWNER}/${RELEASE_NAME}-boshrelease/releases/download/v${VERSION}/${RELEASE_NAME}-${VERSION}.tgz
+  sha1:    $SHA1
+EOF
+ done
  git merge --no-edit ${BRANCH}
  git add -A
  git status
@@ -79,3 +142,16 @@ fi
 
 # so that future steps in the pipeline can push our changes
 cp -a ${REPO_ROOT} ${REPO_OUT}
+
+######
+######
+######
+header "Setting up notifications files"
+echo "New ${RELEASE_NAME} v${VERSION} released." > notifications/message
+echo "https://github.com/${GITHUB_OWNER}/${RELEASE_NAME}-boshrelease/releases/tag/v${VERSION}" > notifications/link
+
+echo
+echo
+echo
+echo "SUCCESS"
+exit 0

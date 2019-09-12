@@ -1,27 +1,35 @@
 ---
 meta:
   name:    cron
-  release: cron
-  target:  sw
-  url:     https://ci.starkandwayne.com
+  release: Cron BOSH Release
+  target:  pipes
+  url:     https://pipes.starkandwayne.com
 
-  initial_version: 0.1.0
+  manifest:
+    path: ci/manifest.yml
+
+  git:
+    name: Stark & Wayne CI Bot
+    email: ci@starkandwayne.com
 
   bosh-lite:
-    target: https://10.58.111.44:25555
-    deployment: cron-warden
+    target:   https://10.128.4.73:25555
+    username: ((thunder-dome.username))
+    password: ((thunder-dome.password))
+    cacert:   ((thunder-dome.ca-certificate))
 
   aws:
-    access_key: (( vault "secret/aws/cfcommunity:access" ))
-    secret_key: (( vault "secret/aws/cfcommunity:secret" ))
+    access_key: ((cfcommunity.access))
+    secret_key: ((cfcommunity.secret))
 
   github:
     owner:  cloudfoundry-community
     repo:   cron-boshrelease
     branch: master
-    private_key:  (( vault "secret/pipelines/cron-boshrelease/github:private" ))
-    access_token: (( vault "secret/pipelines/cron-boshrelease/github:token" ))
+    private_key:  ((github.private-key))
+    access_token: ((github.access-token))
 
-  slack:
-    webhook: (( vault "secret/pipelines/cron-boshrelease/slack:webhook" ))
-    channel: '#botspam'
+  shout:
+    url:      ((shout.url))
+    username: ((shout.username))
+    password: ((shout.password))

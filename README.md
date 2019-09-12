@@ -1,63 +1,54 @@
 # BOSH Release for cron
 
-This BOSH release is intended to allow you to add generic crontab entries
-to any existing BOSH deployment by colocating the `cron` job alongside your
-VMs.
-
-Additionally, it serves as a good starting point, should you want to `bosh-gen extract-job`
-into your own BOSH release, to make it easier to tie a cronjob to your specific release.
-
+This BOSH release is intended to allow you to add generic crontab
+entries to any existing BOSH deployment by colocating the `cron`
+job alongside your VMs.
 
 ### Colocation Instructions
 
 To colocate, ensure your job has the `cron` template specified:
 
 ```
-jobs:
+instance_groups:
 - name: myjob
-  templates:
+  jobs
   - name: cron
     release: cron
+    properties:
+      cron:
+        # a key-value map of any environment variables you want
+        # set in the crontab
+        #
+        variables:
+          VAR1: val1
+          VAR2: val2
+
+        # a list of key-value objects representing cron entries
+        entries:
+
+          # run a commmand already installed
+        - command: /usr/bin/touch /tmp/test-command-cron
+          minute: '*'
+          hour: '*'
+          day: '*'
+          month: '*'
+          wday: '*'
+          user: vcap
+
+          # ... or specify a script to install and run
+        - script:
+            name: touch.sh
+            contents: |
+              #!/bin/bash
+              /usr/bin/touch /tmp/test-script-cron
+          minute: '*'
+          hour: '*'
+          day: '*'
+          month: '*'
+          wday: '*'
+          user: vcap
 ```
 
-For configuring cron entries, use the following properties:
-
-```
-properties:
-  cron:
-    variables: # a key-value map of any environment variables you want set in the crontab
-      VAR1: val1
-      VAR2: val2
-    entries: # a list of key-value objects representing cron entries
-    # run a commmand already installed
-    - command: /usr/bin/touch /tmp/test-command-cron
-      minute: '*'
-      hour: '*'
-      day: '*'
-      month: '*'
-      wday: '*'
-      user: vcap
-    # or specify a script to install and run
-    - script:
-        name: touch.sh
-        contents: |
-          #!/bin/bash
-
-          /usr/bin/touch /tmp/test-script-cron
-      minute: '*'
-      hour: '*'
-      day: '*'
-      month: '*'
-      wday: '*'
-      user: vcap
-
-```
-
-When deployed, this release will generate a crontab, stick it in /etc/cron.d/cron-boshrelease-crontab, and reload the running cron process to read the new crontab.
-
-### Extraction
-
-Feel free to use bosh-gen to extract the `cron` job into your BOSH release, and provide
-custom crontabs that you want always present. Just make sure you modify the filename
-being used to install the crontab, so it won't conflict if a user colocates this
-BOSH release on top of yours!
+When deployed, this release will generate a crontab, stick it in
+/etc/cron.d/cron-boshrelease-crontab, and reload the running cron
+process to read the new crontab.

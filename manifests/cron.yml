@@ -1,0 +1,50 @@
+name: cron-ci
+
+instance_groups:
+- name: cron
+  instances: 1
+  azs:       [z1]
+  stemcell:  default
+  vm_resources:
+    cpu: 2
+    ram: 2048
+    ephemeral_disk_size: 8192
+  networks:
+    - name: default
+  jobs:
+    - release: cron
+      name:    cron
+      properties:
+        cron:
+          entries:
+            - log: /var/vcap/sys/log/cron/out.log
+              minute: 0
+              hour: '*'
+              day: '*'
+              month: '*'
+              wday: '*'
+              user: root
+              script:
+                name: touch.sh
+                contents: |
+                  #!/bin/bash
+                  set -x
+                  echo Hello, World
+
+update:
+  canaries: 0
+  max_in_flight: 1
+  serial: true
+  canary_watch_time: 1000-120000
+  update_watch_time: 1000-120000
+
+stemcells:
+- alias:   default
+  os:      ubuntu-xenial
+  version: latest
+
+releases:
+- name:    cron
+  version: latest
+  #url:     ...
+  #sha1:    ...
