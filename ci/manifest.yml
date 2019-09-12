@@ -5,10 +5,7 @@ instance_groups:
   instances: 1
   azs:       [z1]
   stemcell:  default
-  vm_resources:
-    cpu: 2
-    ram: 2048
-    ephemeral_disk_size: 8192
+  vm_type:   default
   networks:
     - name: default
   jobs:
