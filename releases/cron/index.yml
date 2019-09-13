@@ -11,4 +11,6 @@ builds:
     version: "1"
   9677d285-de22-466e-98ac-99a9020a9a8d:
     version: 1.1.0
+  a61447cb-c0b3-44f2-75cd-c412bd86f11b:
+    version: 1.3.0
 format-version: "2"

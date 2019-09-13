@@ -45,6 +45,6 @@ stemcells:
 
 releases:
 - name:    cron
-  version: latest
-  #url:     ...
-  #sha1:    ...
+  version: 1.3.0
+  url:     https://github.com/cloudfoundry-community/cron-boshrelease/releases/download/v1.3.0/cron-1.3.0.tgz
+  sha1:    fb5ea977eefe8ef3f51754db54c3a7a31f971caf
