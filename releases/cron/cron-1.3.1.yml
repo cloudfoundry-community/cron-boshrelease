@@ -1,0 +1,14 @@
+name: cron
+version: 1.3.1
+commit_hash: fa67766
+uncommitted_changes: false
+jobs:
+- name: cron
+  version: dcb8c8a3ed3acf6e850b14aca9e9fea1a1b4d5027150489fc05a9eb71d9f2ed1
+  fingerprint: dcb8c8a3ed3acf6e850b14aca9e9fea1a1b4d5027150489fc05a9eb71d9f2ed1
+  sha1: sha256:38f4f91023c70cca0c6221b37c108a6fb9a276737cb42eda7bcb72b6b10b898f
+  packages: []
+license:
+  version: c027ecdf0016e6f072c390230a50ce11be821c47c72536d9c66a1dd3b882640b
+  fingerprint: c027ecdf0016e6f072c390230a50ce11be821c47c72536d9c66a1dd3b882640b
+  sha1: sha256:2f566e41e227a3e277719fbd2146e6bcfb7194de6c4a97975d06a8d020ac461f
