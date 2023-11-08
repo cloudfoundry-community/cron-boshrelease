@@ -7,23 +7,18 @@ CONFIG_DIR=/var/vcap/jobs/cron/config
 mkdir -p ${CONFIG_DIR}
 rm -f ${CONFIG_DIR}/*
 
-<%
-  alpha = ('A'..'Z').to_a
-  eof = 'EOF' + 32.times.map { |x| alpha[rand(alpha.length)] }.join('')
-%>
-
-read -r -d '' CRONTAB <<'<%= eof %>'
+read -r -d '' CRONTAB <<'EOF'
 <% p("cron.variables", {}).each do |k, v| %>
 <%= k %>=<%= v.empty? ? "''" : v %>
 <% end %>
-<%= eof %>
+EOF
 
 <% p("cron.entries", []).each do |entry| %>
 <% if entry.key?("script") %>
 ENTRY="${CONFIG_DIR}/<%= entry['script']['name'].gsub(/[-\/.]+/, '-').gsub(/^-|-$/, '') %>"
-cat << '<%= eof %>' > ${ENTRY}
+cat << 'EOF' > ${ENTRY}
 <%= entry['script']['contents'] %>
-<%= eof %>
+EOF
 chmod 755 ${ENTRY}
 <% else %>
 ENTRY="<%= entry["command"].gsub(/([^\\])%/, '\1\%') %>"
